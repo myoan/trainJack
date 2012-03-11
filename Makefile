@@ -1,8 +1,16 @@
-TARGETS = bf bf-vm bf-jit
+cc = gcc
+cflags = -W -Wall -O0 -g3
+obj = trainjack.o
+src = trainjack.c
 
-CXXFLAGS = -Wall -W -O2 -fno-operator-names
+.PHONY: all
+target = trainjack
+all: $(target)
+$(target): $(obj)
+	$(cc) -o $(target) $(obj)
+brainfxxk.o: $(src)
+	$(cc) $(cflags) -c $<
 
-all: $(TARGETS)
-
+.PHONY: clean
 clean:
-	rm -f *.o $(TARGETS)
+	rm -rf $(target) $(obj)
