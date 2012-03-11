@@ -1,17 +1,15 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+/*
+ * TRAIN JACK
+ * Train Jack is my brain fxxk Virtual Machine.
+ * (c) Motoki Yoan
+ * 2012/3/11
+ */
 
-#define STACKSIZE 1024
+#include "trainjack.h"
 
-struct Stack {
-    int stack[STACKSIZE];
-    int top;
-};
+/* -------------------------------------------------------- */
 
-typedef struct Stack stack;
-
-int searchBegin(const char* src, int i) {
+static int searchBegin(const char* src, int i) {
 	//printf("i : %d\n", i);
 	char c;
 	while ((c = src[i]) != '[') {
@@ -25,7 +23,7 @@ int searchBegin(const char* src, int i) {
 	return i;
 }
 
-int searchEnd(const char* src, int i) {
+static int searchEnd(const char* src, int i) {
 	//printf("i : %d\n", i);
 	char c = src[i];
 	while ((c = src[i]) != ']') {
@@ -39,15 +37,20 @@ int searchEnd(const char* src, int i) {
 	return i;
 }
 
-int exec(const char* src) {
+static int exec(const char* src) {
     int stack[STACKSIZE];
     int top = 0;
 	size_t i;
 	memset(stack, '\0', STACKSIZE * sizeof(int));
 	for (i = 0; i < strlen(src); i++) {
 		char token = src[i];
-        //printf("stacktop: %d, read: \"%c\"(%d)\n", top, token, i);
-        //printf("src: %s\n", src);
+        dbg_srcNavigator(src, i);
+        dbg_stat(stack, top);
+        printf("stacktop: %d, read: \"%c\"(%lu)\n", top, token, i);
+        if (top < 0) {
+            printf("ERROR: stack is out of bound.\n");
+            exit(1);
+        }
 		switch(token) {
 			case '+':
 				stack[top]++;
@@ -62,12 +65,22 @@ int exec(const char* src) {
 				top++;
 				break;
 			case '.':
+				//printf("(%d)\n", stack[top]);
+                //printf("stacktop: %d, read: \"%c\"(%lu)\n", top, token, i);
 				putchar(stack[top]);
 				break;
 			case ',':
+                //printf(">>> ");
 				stack[top] = getchar();
 				break;
 			case '[':
+                //dbg_srcNavigator(src, i);
+                //if (stack[top] < 0) {
+                //    printf("ERROR: ");
+                //     dbg_srcNavigator(src, i);
+                //dbg_stat(stack, top);
+                //    asm("int3");
+                //}
 				if (stack[top] == 0) {
 					i = searchEnd(src, i+1);
 				}
@@ -77,6 +90,11 @@ int exec(const char* src) {
 					i = searchBegin(src, i-1);
 				}
 				break;
+			//case '\\':   // original instructioin.
+            //            // when / is called, trainjack displayes stack info.
+            //    dbg_srcNavigator(src, i);
+            //    dbg_stat(stack, top);
+            //    break;
 			case '\0':
 				return 0;
             default: 
@@ -86,9 +104,7 @@ int exec(const char* src) {
 	return -1;
 }
 
-#define BUFSIZE 64
-#define READSIZE 1024 * 32
-char* readFile(const char* file) {
+static char* readFile(const char* file) {
     FILE* fp;
     char s[BUFSIZE];
     if ((fp = fopen(file, "r")) == NULL){
@@ -103,7 +119,35 @@ char* readFile(const char* file) {
     return ret;
 }
 
-/*----------- main ----------*/
+char* parse(char* src)
+{
+    char* ret = (char*)malloc(sizeof(char) * READSIZE);
+    size_t i, j = 0;
+    for (i = 0; i < strlen(src); i++) {
+        switch (src[i]) {
+            case '+':
+            case '-':
+            case '<':
+            case '>':
+            case '.':
+            case ',':
+            case '[':
+            case ']':
+            //case '\\':
+                ret[j++] = src[i];
+                break;
+            default:
+                break;
+        }
+    }
+    free(src);
+    ret[j] = '\0';
+    printf("parsed: %s\n", ret);
+    return ret;
+}
+
+/* -------------------------------------------------------- */
+/* [main] */
 
 int main(int argc, char const* argv[])
 {
@@ -112,7 +156,7 @@ int main(int argc, char const* argv[])
         exit(0);
     }
     char* src = readFile(argv[1]);
-    exec(src);
+    exec(parse((char*)src));
     printf("\n");
 	return 0;
 }
