@@ -8,7 +8,7 @@ target = trainjack
 all: $(target)
 $(target): $(obj)
 	$(cc) -o $(target) $(obj)
-brainfxxk.o: $(src)
+trainjack.o: $(src)
 	$(cc) $(cflags) -c $<
 
 .PHONY: clean

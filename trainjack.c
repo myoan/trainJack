@@ -2,42 +2,23 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define STACKSIZE 64
+#define STACKSIZE 1024
 
-void readFile(char* str)
-{
-	FILE *fp;
-	char s[64], tmp[256];
-	char* line = tmp;
-	memset(s, 0, 64);
-	memset(line, 0, 256);
-	int parenth = 0;
-	if ((fp = fopen(str, "r")) == NULL){
-		fprintf(stderr, "ERROR: cannot open file %s\n", str);
-		exit(0);
-	}
+struct Stack {
+    int stack[STACKSIZE];
+    int top;
+};
 
-	while (fgets(s, 64, fp) != NULL){
-		strcat(line, s);
-		Node_t* head = new_node();
-		parenth += getParenth(s);
-		if (parenth == 0){
-			parse(head, &line);
-			eval(head);
-			memset(line, 0, 256);
-		}
-	}
-	if (parenth != 0){
-		fprintf(stderr, "ERROR: sytax error\n");
-		exit(0);
-	}
-	fclose(fp);
-}
+typedef struct Stack stack;
 
 int searchBegin(const char* src, int i) {
 	//printf("i : %d\n", i);
 	char c;
 	while ((c = src[i]) != '[') {
+        //printf("begin i: %lu(%c)\n", i, c);
+        if (c == ']') {
+            i = searchBegin(src, --i);
+        }
 		i--;
 	}
 	//printf("ret : %d\n", i);
@@ -48,7 +29,10 @@ int searchEnd(const char* src, int i) {
 	//printf("i : %d\n", i);
 	char c = src[i];
 	while ((c = src[i]) != ']') {
-		printf("c: %c\n", c);
+        //printf("end i: %lu(%c)\n", i, c);
+        if (c == ']') {
+            i = searchEnd(src, --i);
+        }
 		i++;
 	}
 	//printf("ret : %d\n", i);
@@ -56,12 +40,14 @@ int searchEnd(const char* src, int i) {
 }
 
 int exec(const char* src) {
-	int stack[STACKSIZE];
-	int top = 0;
+    int stack[STACKSIZE];
+    int top = 0;
 	size_t i;
 	memset(stack, '\0', STACKSIZE * sizeof(int));
 	for (i = 0; i < strlen(src); i++) {
 		char token = src[i];
+        //printf("stacktop: %d, read: \"%c\"(%d)\n", top, token, i);
+        //printf("src: %s\n", src);
 		switch(token) {
 			case '+':
 				stack[top]++;
@@ -83,26 +69,50 @@ int exec(const char* src) {
 				break;
 			case '[':
 				if (stack[top] == 0) {
-					i = searchEnd(src, i);
+					i = searchEnd(src, i+1);
 				}
 				break;
 			case ']':
 				if (stack[top] != 0) {
-					i = searchBegin(src, i);
+					i = searchBegin(src, i-1);
 				}
 				break;
 			case '\0':
 				return 0;
+            default: 
+                break;
 		}
 	}
 	return -1;
 }
 
-/*- test -*/
+#define BUFSIZE 64
+#define READSIZE 1024 * 32
+char* readFile(const char* file) {
+    FILE* fp;
+    char s[BUFSIZE];
+    if ((fp = fopen(file, "r")) == NULL){
+    	fprintf(stderr, "ERROR: cannot open file %s\n", file);
+    	exit(0);
+    }
+    char* ret = (char*)malloc(sizeof(char) * READSIZE);
+    while(fgets(s, BUFSIZE, fp) != NULL) {
+        strcat(ret, s);
+    }
+	fclose(fp);
+    return ret;
+}
+
+/*----------- main ----------*/
+
 int main(int argc, char const* argv[])
 {
-	const char* src = ">+++++++++[<++++++++>-]<.>+++++++[<++++>-]<+.+++++++..+++.[-]>++++++++[<++ ++>-]<.>+++++++++++[<+++++>-]<.>++++++++[<+++>-]<.+++.------.--------.[-]> ++++++++[<++++>-]<+.[-]++++++++++.\0"; // HELLO WORLD;
-	printf("\n");
-	exec(src);
+    if (argc <= 1) {
+        fprintf(stderr, "ERROR: No Input file.\n");
+        exit(0);
+    }
+    char* src = readFile(argv[1]);
+    exec(src);
+    printf("\n");
 	return 0;
 }
