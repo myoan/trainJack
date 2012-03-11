@@ -65,7 +65,7 @@ int exec(const char* src) {
 				putchar(stack[top]);
 				break;
 			case ',':
-				//p = getchar();
+				stack[top] = getchar();
 				break;
 			case '[':
 				if (stack[top] == 0) {
