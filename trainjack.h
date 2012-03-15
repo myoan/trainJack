@@ -21,7 +21,13 @@ struct Stack {
     int top;
 };
 
+struct Code {
+	int op;
+	int label;
+};
+
 typedef struct Stack Stack;
+typedef struct Code Code;
 
 /* -------------------------------------------------------- */
 /* [prototype functions] */

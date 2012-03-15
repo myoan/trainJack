@@ -1,6 +1,6 @@
 /*
  * TRAIN JACK
- * Train Jack is my brain fxxk Virtual Machine.
+ * Train Jack is my brainfxxk Virtual Machine.
  * (c) Motoki Yoan
  * 2012/3/11
  */
@@ -10,30 +10,24 @@
 /* -------------------------------------------------------- */
 
 static int searchBegin(const char* src, int i) {
-	//printf("i : %d\n", i);
 	char c;
 	while ((c = src[i]) != '[') {
-        //printf("begin i: %lu(%c)\n", i, c);
         if (c == ']') {
-            i = searchBegin(src, --i);
+            i = searchBegin(src, i-1);
         }
 		i--;
 	}
-	//printf("ret : %d\n", i);
 	return i;
 }
 
 static int searchEnd(const char* src, int i) {
-	//printf("i : %d\n", i);
 	char c = src[i];
 	while ((c = src[i]) != ']') {
-        //printf("end i: %lu(%c)\n", i, c);
-        if (c == ']') {
-            i = searchEnd(src, --i);
+        if (c == '[') {
+            i = searchEnd(src, i+1);
         }
 		i++;
 	}
-	//printf("ret : %d\n", i);
 	return i;
 }
 
@@ -44,9 +38,6 @@ static int exec(const char* src) {
 	memset(stack, '\0', STACKSIZE * sizeof(int));
 	for (i = 0; i < strlen(src); i++) {
 		char token = src[i];
-        dbg_srcNavigator(src, i);
-        dbg_stat(stack, top);
-        printf("stacktop: %d, read: \"%c\"(%lu)\n", top, token, i);
         if (top < 0) {
             printf("ERROR: stack is out of bound.\n");
             exit(1);
@@ -65,22 +56,12 @@ static int exec(const char* src) {
 				top++;
 				break;
 			case '.':
-				//printf("(%d)\n", stack[top]);
-                //printf("stacktop: %d, read: \"%c\"(%lu)\n", top, token, i);
 				putchar(stack[top]);
 				break;
 			case ',':
-                //printf(">>> ");
 				stack[top] = getchar();
 				break;
 			case '[':
-                //dbg_srcNavigator(src, i);
-                //if (stack[top] < 0) {
-                //    printf("ERROR: ");
-                //     dbg_srcNavigator(src, i);
-                //dbg_stat(stack, top);
-                //    asm("int3");
-                //}
 				if (stack[top] == 0) {
 					i = searchEnd(src, i+1);
 				}
