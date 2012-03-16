@@ -1,5 +1,6 @@
 cc = gcc
-cflags = -W -Wall -O0 -g3
+cflags = -W -Wall -O2 -g0
+#cflags = -W -Wall -O0 -g3
 obj = trainjack.o debug.o
 
 .PHONY: all

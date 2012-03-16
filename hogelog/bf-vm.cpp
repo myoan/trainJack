@@ -13,6 +13,7 @@ void parse(std::vector<Instruction> &codes, FILE *input) {
     std::stack<int> pcstack;
     Instruction code;
     while ((ch=getc(input)) != EOF) {
+		printf("ch: %c\n", ch);
         code.op = ch;
         switch (ch) {
             case '+':
@@ -78,7 +79,10 @@ void execute(std::vector<Instruction> &codes, int membuf[MEMSIZE]) {
 int main() {
     static int membuf[MEMSIZE];
     std::vector<Instruction> codes;
+	printf("hi\n");
     parse(codes, stdin);
+	printf("hi\n");
     execute(codes, membuf);
+	printf("hi\n");
     return 0;
 }

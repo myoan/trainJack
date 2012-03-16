@@ -27,6 +27,15 @@ static bool isInst(char i) {
 }
 */
 
+void dump_code(Code* code) {
+	size_t i, size = code[0].label + 1;
+	printf("program size: %d\n", code[0].op);
+	printf("vm size: %d\n", size);
+	for (i = 1; i < size; i++) {
+		printf("(%d)OP: %c %d\n", i, code[i].op, code[i].label);
+	}
+}
+
 void dbg_stat(int stack[], int top) {
     int i;
     printf("stack(%d): [", top);
