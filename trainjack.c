@@ -100,6 +100,32 @@ static char* readFile(const char* file) {
     return ret;
 }
 
+void compile(char* src) {
+	size_t i, size = strlen(src);
+	Code* c = (Code*)malloc(sizeof(Code) * size);
+    for (i = 0; i < size; i++) {
+        switch (src[i]) {
+            case '+':
+            case '-':
+            case '<':
+            case '>':
+            case '.':
+            case ',':
+				c->op = src[i];
+                break;
+            case '[':
+            case ']':
+            //case '\\':
+				c->op = src[i];
+				c->label = i;
+                break;
+            default:
+                break;
+        }
+		c++;
+    }
+}
+
 char* parse(char* src)
 {
     char* ret = (char*)malloc(sizeof(char) * READSIZE);
@@ -123,7 +149,7 @@ char* parse(char* src)
     }
     free(src);
     ret[j] = '\0';
-    printf("parsed: %s\n", ret);
+    //printf("parsed: %s\n", ret);
     return ret;
 }
 
