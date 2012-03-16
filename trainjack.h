@@ -33,3 +33,4 @@ typedef struct Code Code;
 /* [prototype functions] */
 void dbg_srcNavigator(const char* src, int i);
 void dbg_stat(int stack[], int top);
+void dump_code(Code* code);
